@@ -73,19 +73,29 @@ main :: proc() {
     gl.DeleteShader(fragment_shader)
 
     // Veretx data
-    vertices: [9]f32 = {
-        -0.5, -0.5, 0.0,
+    vertices: [12]f32 = {
+        0.5, 0.5, 0.0,
         0.5, -0.5, 0.0,
-        0.0,  0.5, 0.0,
+        -0.5, -0.5, 0.0,
+        -0.5, 0.5, 0.0,
+    }
+    indices: [6]u32 = {
+        0, 1, 3,
+        1, 2, 3,
     }
 
-    VBO, VAO: u32
+    VBO, VAO, EBO: u32
     gl.GenVertexArrays(1, &VAO)
     gl.GenBuffers(1, &VBO)
+    gl.GenBuffers(1, &EBO)
+
     gl.BindVertexArray(VAO)
 
     gl.BindBuffer(gl.ARRAY_BUFFER, VBO) // bind the VBO to the ARRAY_BUFFER buffer type
     gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW) // copies the data in the vertices array to the array buffer in the gpu
+
+    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices[0], gl.STATIC_DRAW)
 
     gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
     gl.EnableVertexAttribArray(0)
@@ -95,7 +105,11 @@ main :: proc() {
 
     defer gl.DeleteVertexArrays(1, &VAO)
     defer gl.DeleteBuffers(1, &VBO)
+    defer gl.DeleteBuffers(1, &EBO)
     defer gl.DeleteProgram(shader_program)
+
+    // Enable wireframe mode
+    /* gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE) */
 
     // Main Loop
     for !glfw.WindowShouldClose(window) {
@@ -108,7 +122,7 @@ main :: proc() {
 
         gl.UseProgram(shader_program)
         gl.BindVertexArray(VAO)
-        gl.DrawArrays(gl.TRIANGLES, 0, 3)
+        gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, rawptr(uintptr(0)))
 
         // Check event and swap the buffers
         glfw.SwapBuffers(window)
