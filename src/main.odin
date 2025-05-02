@@ -93,6 +93,10 @@ main :: proc() {
     gl.BindBuffer(gl.ARRAY_BUFFER, 0)
     gl.BindVertexArray(0)
 
+    defer gl.DeleteVertexArrays(1, &VAO)
+    defer gl.DeleteBuffers(1, &VBO)
+    defer gl.DeleteProgram(shader_program)
+
     // Main Loop
     for !glfw.WindowShouldClose(window) {
         // Input
