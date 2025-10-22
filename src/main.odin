@@ -11,25 +11,7 @@ TITLE  :: "LearnOpenGL"
 GL_MAJOR_VERSION :: 3
 GL_MINOR_VERSION :: 3
 
-vertex_shader_source: cstring = `
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aColor;
-    out vec3 ourColor;
-    void main()
-    {
-        gl_Position = vec4(aPos, 1.0f);
-        ourColor = aColor;
-    }`
-
-fragment_shader_source: cstring = `
-    #version 330 core
-    out vec4 FragColor;
-    in vec3 ourColor;
-    void main()
-    {
-        FragColor = vec4(ourColor, 1.0f);
-    }`
+shader_program: u32
 
 main :: proc() {
     // GLFW Setup
@@ -58,23 +40,11 @@ main :: proc() {
     // OpenGL Setup
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
-    // Vertex shader
-    vertex_shader: u32 = gl.CreateShader(gl.VERTEX_SHADER)
-    gl.ShaderSource(vertex_shader, 1, &vertex_shader_source, nil)
-    gl.CompileShader(vertex_shader)
-
-    // Fragment shader
-    fragment_shader: u32 = gl.CreateShader(gl.FRAGMENT_SHADER)
-    gl.ShaderSource(fragment_shader, 1, &fragment_shader_source, nil)
-    gl.CompileShader(fragment_shader)
-
-    // Link Shader
-    shader_program: u32 = gl.CreateProgram()
-    gl.AttachShader(shader_program, vertex_shader)
-    gl.AttachShader(shader_program, fragment_shader)
-    gl.LinkProgram(shader_program)
-    gl.DeleteShader(vertex_shader)
-    gl.DeleteShader(fragment_shader)
+    // Shaders setup
+    if !init_shader("./shaders/shader.vs", "./shaders/shader.fs") {
+        glfw.Terminate()
+        return
+    }
 
     // Veretx data
     vertices: []f32 = {
