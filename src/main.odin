@@ -73,13 +73,13 @@ main :: proc() {
     gl.DeleteShader(fragment_shader)
 
     // Veretx data
-    vertices: [12]f32 = {
+    vertices: []f32 = {
         0.5, 0.5, 0.0,
         0.5, -0.5, 0.0,
         -0.5, -0.5, 0.0,
         -0.5, 0.5, 0.0,
     }
-    indices: [6]u32 = {
+    indices: []u32 = {
         0, 1, 3,
         1, 2, 3,
     }
@@ -92,12 +92,12 @@ main :: proc() {
     gl.BindVertexArray(VAO)
 
     gl.BindBuffer(gl.ARRAY_BUFFER, VBO) // bind the VBO to the ARRAY_BUFFER buffer type
-    gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW) // copies the data in the vertices array to the array buffer in the gpu
+    gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(f32), raw_data(vertices), gl.STATIC_DRAW) // copies the data in the vertices array to the array buffer in the gpu
 
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
-    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices[0], gl.STATIC_DRAW)
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * size_of(u32), &indices[0], gl.STATIC_DRAW)
 
-    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
+    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), cast(uintptr)0)
     gl.EnableVertexAttribArray(0)
 
     gl.BindBuffer(gl.ARRAY_BUFFER, 0)
@@ -109,7 +109,7 @@ main :: proc() {
     defer gl.DeleteProgram(shader_program)
 
     // Enable wireframe mode
-    /* gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE) */
+    gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
 
     // Main Loop
     for !glfw.WindowShouldClose(window) {
